@@ -1,4 +1,3 @@
-
 // src/app/legezterest/page.tsx
 'use client';
 
@@ -6,11 +5,13 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Search, Heart, Download, ArrowLeft } from 'lucide-react';
+import { Search, Heart, Download, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { generateImages } from '@/ai/flows/generate-image-flow';
+import { useToast } from '@/hooks/use-toast';
 
 interface DisplayImage {
-  id: number;
+  id: string;
   url: string;
   alt: string;
   author: string;
@@ -20,148 +21,150 @@ interface DisplayImage {
 
 const initialImages: DisplayImage[] = [
     {
-        id: 1,
+        id: '1',
         url: `https://placehold.co/400x500.png`,
-        alt: `Image 1`,
+        alt: `Abstract architecture`,
         dataAiHint: 'architecture abstract',
-        author: `Creator 1`,
+        author: `AI Bot`,
         avatar: `https://placehold.co/40x40.png`
     },
      {
-        id: 2,
+        id: '2',
         url: `https://placehold.co/400x300.png`,
-        alt: `Image 2`,
+        alt: `Minimalist nature scene`,
         dataAiHint: 'nature minimal',
-        author: `Creator 2`,
+        author: `AI Bot`,
         avatar: `https://placehold.co/40x40.png`
     },
      {
-        id: 3,
+        id: '3',
         url: `https://placehold.co/400x600.png`,
-        alt: `Image 3`,
+        alt: `Dramatic portrait`,
         dataAiHint: 'portrait dramatic',
-        author: `Creator 3`,
+        author: `AI Bot`,
         avatar: `https://placehold.co/40x40.png`
     },
      {
-        id: 4,
+        id: '4',
         url: `https://placehold.co/400x450.png`,
-        alt: `Image 4`,
+        alt: `City at night`,
         dataAiHint: 'city night',
-        author: `Creator 4`,
+        author: `AI Bot`,
         avatar: `https://placehold.co/40x40.png`
     },
       {
-        id: 5,
+        id: '5',
         url: `https://placehold.co/400x350.png`,
-        alt: `Image 5`,
+        alt: `Delicious food`,
         dataAiHint: 'food delicious',
-        author: `Creator 5`,
+        author: `AI Bot`,
         avatar: `https://placehold.co/40x40.png`
     },
 ];
 
 export default function LegezterestPage() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [images] = useState<DisplayImage[]>(initialImages);
-    const [searchUrl, setSearchUrl] = useState<string | null>(null);
+    const [images, setImages] = useState<DisplayImage[]>(initialImages);
+    const [isLoading, setIsLoading] = useState(false);
+    const { toast } = useToast();
 
-    const handleSearch = (e: React.FormEvent) => {
+    const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         if (searchTerm.trim() === '') return;
+        setIsLoading(true);
 
-        const pinterestUrl = `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(searchTerm.trim())}`;
-        setSearchUrl(pinterestUrl);
+        try {
+            const result = await generateImages({ prompt: searchTerm, count: 5 });
+            const newImages: DisplayImage[] = result.images.map((img, index) => ({
+                id: `ai-${Date.now()}-${index}`,
+                url: img.url,
+                alt: searchTerm,
+                author: 'AI Generator',
+                avatar: 'https://placehold.co/40x40.png',
+                dataAiHint: 'ai generated'
+            }));
+            setImages(prev => [...newImages, ...prev]);
+
+        } catch (error) {
+            console.error('Image generation error:', error);
+            toast({
+                variant: 'destructive',
+                title: 'Image Generation Failed',
+                description: 'There was an error generating images. Please try again.'
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
-
-    const handleBack = () => {
-        setSearchUrl(null);
-        setSearchTerm('');
-    };
-
 
     return (
         <div className="flex flex-col h-full bg-background text-foreground p-4 md:p-6">
             <header className="mb-8 text-center">
                 <h1 className="text-5xl font-bold font-headline mb-2">Legezterest</h1>
-                <p className="text-lg text-muted-foreground">Find inspiration from across the web.</p>
+                <p className="text-lg text-muted-foreground">Turn your ideas into images.</p>
                  <form onSubmit={handleSearch} className="relative mt-6 max-w-xl mx-auto">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="Search on Pinterest... (e.g., 'Ben 10')"
-                        className="w-full rounded-full bg-muted pl-12 pr-48 h-14 text-lg"
+                        placeholder="Describe an image to generate... (e.g., 'a cat in a space suit')"
+                        className="w-full rounded-full bg-muted pl-12 pr-32 h-14 text-lg"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        disabled={isLoading}
                     />
-                    <Button type="submit" disabled={!searchTerm.trim()} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-11 px-4">
-                        <Search className="mr-2 h-4 w-4" />
-                        Search Pinterest
+                    <Button type="submit" disabled={!searchTerm.trim() || isLoading} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-11 px-4">
+                        {isLoading ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <Search className="mr-2 h-4 w-4" />
+                        )}
+                        Generate
                     </Button>
                 </form>
             </header>
 
-            <main className="flex-1 flex flex-col">
-                {searchUrl ? (
-                    <div className="flex-1 flex flex-col">
-                         <div className="mb-4">
-                            <Button variant="outline" onClick={handleBack}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to Gallery
-                            </Button>
-                        </div>
-                        <iframe
-                            src={searchUrl}
-                            className="w-full h-full flex-1 border-2 border-border rounded-lg"
-                            title="Pinterest Search Results"
-                        ></iframe>
-                         <p className="text-xs text-muted-foreground mt-2 text-center">
-                            Note: Some websites like Pinterest may block being embedded. If the frame is empty, this is likely the case.
-                        </p>
-                    </div>
-                ) : (
-                     images.length > 0 ? (
-                     <div 
-                        className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4"
-                    >
-                        {images.map((image) => (
-                            <div key={image.id} className="break-inside-avoid group relative">
-                                <Card className="overflow-hidden border-0">
-                                    <Image
-                                        src={image.url}
-                                        alt={image.alt}
-                                        width={400}
-                                        height={500} // Use a consistent height or parse from URL if dynamic
-                                        className="w-full h-auto"
-                                        data-ai-hint={image.dataAiHint}
-                                        unoptimized={image.url.startsWith('data:')} // Important for base64 images
-                                    />
-                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3">
-                                        <div></div>
-                                        <div className="flex items-center justify-end gap-2">
-                                             <Button size="icon" variant="secondary" className="rounded-full h-10 w-10 bg-background/80 hover:bg-background">
-                                                <Download className="w-5 h-5 text-foreground" />
-                                            </Button>
-                                            <Button size="icon" className="rounded-full h-10 w-10">
-                                                <Heart className="w-5 h-5" />
-                                                <span className="sr-only">Save</span>
-                                            </Button>
-                                        </div>
+            <main className="flex-1">
+                 {images.length > 0 ? (
+                 <div 
+                    className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4"
+                >
+                    {images.map((image) => (
+                        <div key={image.id} className="break-inside-avoid group relative">
+                            <Card className="overflow-hidden border-0">
+                                <Image
+                                    src={image.url}
+                                    alt={image.alt}
+                                    width={400}
+                                    height={500} 
+                                    className="w-full h-auto"
+                                    data-ai-hint={image.dataAiHint}
+                                    unoptimized={image.url.startsWith('data:')}
+                                />
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3">
+                                    <div></div>
+                                    <div className="flex items-center justify-end gap-2">
+                                         <Button size="icon" variant="secondary" className="rounded-full h-10 w-10 bg-background/80 hover:bg-background">
+                                            <Download className="w-5 h-5 text-foreground" />
+                                        </Button>
+                                        <Button size="icon" className="rounded-full h-10 w-10">
+                                            <Heart className="w-5 h-5" />
+                                            <span className="sr-only">Save</span>
+                                        </Button>
                                     </div>
-                                </Card>
-                                 <div className="flex items-center gap-2 mt-2 px-1">
-                                    <Image src={image.avatar} alt={image.author} width={24} height={24} className="rounded-full" data-ai-hint="person avatar"/>
-                                    <span className="text-sm font-medium text-muted-foreground">{image.author}</span>
                                 </div>
+                            </Card>
+                             <div className="flex items-center gap-2 mt-2 px-1">
+                                <Image src={image.avatar} alt={image.author} width={24} height={24} className="rounded-full" data-ai-hint="person avatar"/>
+                                <span className="text-sm font-medium text-muted-foreground">{image.author}</span>
                             </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-20">
-                        <p className="text-lg text-muted-foreground">No images to display. Try a search above to find some on Pinterest!</p>
-                    </div>
-                )
-                )}
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-20">
+                    <p className="text-lg text-muted-foreground">No images to display. Try a search above to generate some!</p>
+                </div>
+            )}
             </main>
         </div>
     );
