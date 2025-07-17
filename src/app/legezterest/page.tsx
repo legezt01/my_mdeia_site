@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Search, Heart, Download } from 'lucide-react';
+import { Search, Heart, Download, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 
 interface DisplayImage {
@@ -64,13 +64,19 @@ const initialImages: DisplayImage[] = [
 export default function LegezterestPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [images] = useState<DisplayImage[]>(initialImages);
+    const [searchUrl, setSearchUrl] = useState<string | null>(null);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchTerm.trim() === '') return;
 
         const pinterestUrl = `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(searchTerm.trim())}`;
-        window.open(pinterestUrl, '_blank');
+        setSearchUrl(pinterestUrl);
+    };
+
+    const handleBack = () => {
+        setSearchUrl(null);
+        setSearchTerm('');
     };
 
 
@@ -95,8 +101,26 @@ export default function LegezterestPage() {
                 </form>
             </header>
 
-            <main className="flex-1">
-                {images.length > 0 ? (
+            <main className="flex-1 flex flex-col">
+                {searchUrl ? (
+                    <div className="flex-1 flex flex-col">
+                         <div className="mb-4">
+                            <Button variant="outline" onClick={handleBack}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Back to Gallery
+                            </Button>
+                        </div>
+                        <iframe
+                            src={searchUrl}
+                            className="w-full h-full flex-1 border-2 border-border rounded-lg"
+                            title="Pinterest Search Results"
+                        ></iframe>
+                         <p className="text-xs text-muted-foreground mt-2 text-center">
+                            Note: Some websites like Pinterest may block being embedded. If the frame is empty, this is likely the case.
+                        </p>
+                    </div>
+                ) : (
+                     images.length > 0 ? (
                      <div 
                         className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4"
                     >
@@ -136,6 +160,7 @@ export default function LegezterestPage() {
                     <div className="text-center py-20">
                         <p className="text-lg text-muted-foreground">No images to display. Try a search above to find some on Pinterest!</p>
                     </div>
+                )
                 )}
             </main>
         </div>
