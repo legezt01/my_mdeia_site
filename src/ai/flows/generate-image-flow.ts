@@ -11,7 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const GenerateImagesInputSchema = z.object({
+const GenerateImagesInputSchema = z.object({
   prompt: z.string().describe('The text prompt to generate an image from.'),
   count: z.number().describe('The number of images to generate.').min(1).max(5),
 });
@@ -21,7 +21,7 @@ const GeneratedImageSchema = z.object({
     url: z.string().describe("A data URI of the generated image. Expected format: 'data:image/png;base64,<encoded_data>'."),
 });
 
-export const GenerateImagesOutputSchema = z.object({
+const GenerateImagesOutputSchema = z.object({
   images: z.array(GeneratedImageSchema).describe('An array of generated images.'),
 });
 export type GenerateImagesOutput = z.infer<typeof GenerateImagesOutputSchema>;
