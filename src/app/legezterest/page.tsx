@@ -1,3 +1,4 @@
+
 // src/app/legezterest/page.tsx
 'use client';
 
@@ -11,6 +12,7 @@ import { generateImages, GenerateImagesInput } from '@/ai/flows/generate-image-f
 import { useToast } from '@/hooks/use-toast';
 
 interface GeneratedImage {
+  id: number;
   url: string;
   alt: string;
   author: string;
@@ -59,11 +61,11 @@ const initialImages = [
         author: `Creator 5`,
         avatar: `https://placehold.co/40x40.png`
     },
-]
+];
 
 export default function LegezterestPage() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [images, setImages] = useState(initialImages);
+    const [images, setImages] = useState<GeneratedImage[]>(initialImages);
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
 
@@ -72,8 +74,7 @@ export default function LegezterestPage() {
         if (searchTerm.trim() === '') return;
 
         setIsLoading(true);
-        setImages([]); // Clear existing images
-
+        
         try {
             const input: GenerateImagesInput = {
                 prompt: searchTerm,
@@ -88,7 +89,9 @@ export default function LegezterestPage() {
                 author: 'AI Generator',
                 avatar: 'https://placehold.co/40x40.png'
             }));
-            setImages(newImages);
+            
+            // Prepend new images to the existing list
+            setImages(prevImages => [...newImages, ...prevImages]);
 
         } catch (error) {
             console.error("AI Image Generation Error:", error);
@@ -97,7 +100,6 @@ export default function LegezterestPage() {
                 title: 'Error Generating Images',
                 description: 'Sorry, there was a problem creating images for your prompt.'
             });
-            setImages(initialImages); // Restore initial images on error
         } finally {
             setIsLoading(false);
         }
@@ -128,14 +130,13 @@ export default function LegezterestPage() {
 
             <main className="flex-1">
                  {isLoading && (
-                    <div className="flex flex-col items-center justify-center text-center py-20">
-                        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-                        <p className="text-lg text-muted-foreground">Generating amazing images for &quot;{searchTerm}&quot;...</p>
-                        <p className="text-sm text-muted-foreground">(This may take a moment)</p>
+                    <div className="flex flex-col items-center justify-center text-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
+                        <p className="text-md text-muted-foreground">Generating new images for &quot;{searchTerm}&quot;...</p>
                     </div>
                  )}
 
-                {!isLoading && images.length > 0 && (
+                {images.length > 0 ? (
                      <div 
                         className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4"
                     >
@@ -171,9 +172,7 @@ export default function LegezterestPage() {
                             </div>
                         ))}
                     </div>
-                )}
-                
-                {!isLoading && images.length === 0 && (
+                ) : (
                     <div className="text-center py-20">
                         <p className="text-lg text-muted-foreground">No images to display. Try generating some with the search bar above!</p>
                     </div>
