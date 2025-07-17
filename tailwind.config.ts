@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -12,6 +13,7 @@ export default {
       fontFamily: {
         body: ['"PT Sans"', 'sans-serif'],
         headline: ['"Playfair Display"', 'serif'],
+        sans: ['"Roboto"', '"Poppins"', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -64,6 +66,9 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
+        'neon-blue': '#7DF9FF',
+        'neon-purple': '#A64DFF',
+        'neon-red': '#E0218A',
       },
       borderRadius: {
         lg: 'var(--radius)',
