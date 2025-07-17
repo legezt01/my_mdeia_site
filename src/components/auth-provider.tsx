@@ -38,7 +38,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: any) {
       if (error.code === 'auth/popup-closed-by-user') {
         console.log('Sign-in popup closed by user.');
-      } else if (error.code !== 'auth/cancelled-popup-request') {
+      } else if (error.code === 'auth/popup-blocked-by-browser') {
+         toast({
+          variant: 'destructive',
+          title: 'Popup Blocked',
+          description: 'Please allow popups for this site to sign in.',
+        });
+      }
+      else {
         console.error("Sign-in error:", error);
         toast({
           variant: 'destructive',
@@ -46,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           description: error.message || 'An unknown error occurred.',
         });
       }
-      // Ensure loading is always turned off after the attempt.
+      // Ensure loading is always turned off after an attempt fails.
       setLoading(false);
     }
   };
