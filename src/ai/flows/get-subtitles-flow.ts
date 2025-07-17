@@ -62,5 +62,3 @@ export async function getSubtitles(input: GetSubtitlesInput): Promise<GetSubtitl
     return { subtitles: [] };
   }
 }
-
-    
