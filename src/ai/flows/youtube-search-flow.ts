@@ -32,6 +32,7 @@ const YoutubeSearchOutputSchema = z.object({
 export type YoutubeSearchOutput = z.infer<typeof YoutubeSearchOutputSchema>;
 
 function formatDuration(isoString: string) {
+    if (!isoString) return '00:00';
     const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
     const matches = isoString.match(regex);
 
@@ -51,9 +52,11 @@ function formatDuration(isoString: string) {
 
     const parts = [];
     if (h > 0) {
-        parts.push(h.toString().padStart(2, '0'));
+        parts.push(h.toString());
+        parts.push(m.toString().padStart(2, '0'));
+    } else {
+        parts.push(m.toString());
     }
-    parts.push(m.toString().padStart(2, '0'));
     parts.push(s.toString().padStart(2, '0'));
 
     return parts.join(':');
@@ -80,8 +83,11 @@ export async function youtubeSearch(input: YoutubeSearchInput): Promise<YoutubeS
     throw new Error(`Failed to search YouTube: ${errorData.error.message}`);
   }
   const searchData = await searchResponse.json();
-
-  const videoIds = searchData.items.map((item: any) => item.id.videoId).join(',');
+  
+  const videoIds = searchData.items
+    .filter((item: any) => item.id && item.id.kind === 'youtube#video' && item.id.videoId)
+    .map((item: any) => item.id.videoId)
+    .join(',');
 
   if (!videoIds) {
     return { results: [] };
@@ -105,7 +111,7 @@ export async function youtubeSearch(input: YoutubeSearchInput): Promise<YoutubeS
     thumbnail: item.snippet.thumbnails.medium.url,
     title: item.snippet.title,
     channel: item.snippet.channelTitle,
-    duration: formatDuration(item.contentDetails.duration),
+    duration: formatDuration(item.contentDetails?.duration),
     dataAiHint: 'video thumbnail',
   }));
 
