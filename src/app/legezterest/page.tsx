@@ -6,12 +6,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Search, Heart, Download, Loader2, Wand2 } from 'lucide-react';
+import { Search, Heart, Download } from 'lucide-react';
 import Image from 'next/image';
-import { generateImages, GenerateImagesInput } from '@/ai/flows/generate-image-flow';
-import { useToast } from '@/hooks/use-toast';
 
-interface GeneratedImage {
+interface DisplayImage {
   id: number;
   url: string;
   alt: string;
@@ -20,7 +18,7 @@ interface GeneratedImage {
   dataAiHint: string;
 }
 
-const initialImages = [
+const initialImages: DisplayImage[] = [
     {
         id: 1,
         url: `https://placehold.co/400x500.png`,
@@ -65,44 +63,14 @@ const initialImages = [
 
 export default function LegezterestPage() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [images, setImages] = useState<GeneratedImage[]>(initialImages);
-    const [isLoading, setIsLoading] = useState(false);
-    const { toast } = useToast();
+    const [images] = useState<DisplayImage[]>(initialImages);
 
-    const handleSearch = async (e: React.FormEvent) => {
+    const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchTerm.trim() === '') return;
 
-        setIsLoading(true);
-        
-        try {
-            const input: GenerateImagesInput = {
-                prompt: searchTerm,
-                count: 5 // Generate 5 images for demonstration
-            };
-            const result = await generateImages(input);
-            const newImages = result.images.map((img, index) => ({
-                id: Date.now() + index,
-                url: img.url,
-                alt: searchTerm,
-                dataAiHint: searchTerm,
-                author: 'AI Generator',
-                avatar: 'https://placehold.co/40x40.png'
-            }));
-            
-            // Prepend new images to the existing list
-            setImages(prevImages => [...newImages, ...prevImages]);
-
-        } catch (error) {
-            console.error("AI Image Generation Error:", error);
-            toast({
-                variant: 'destructive',
-                title: 'Error Generating Images',
-                description: 'Sorry, there was a problem creating images for your prompt.'
-            });
-        } finally {
-            setIsLoading(false);
-        }
+        const pinterestUrl = `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(searchTerm.trim())}`;
+        window.open(pinterestUrl, '_blank');
     };
 
 
@@ -110,32 +78,24 @@ export default function LegezterestPage() {
         <div className="flex flex-col h-full bg-background text-foreground p-4 md:p-6">
             <header className="mb-8 text-center">
                 <h1 className="text-5xl font-bold font-headline mb-2">Legezterest</h1>
-                <p className="text-lg text-muted-foreground">Discover your next inspiration with AI.</p>
+                <p className="text-lg text-muted-foreground">Find inspiration from across the web.</p>
                  <form onSubmit={handleSearch} className="relative mt-6 max-w-xl mx-auto">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
                         type="search"
-                        placeholder="Generate images with AI... (e.g., 'a cat in a space suit')"
-                        className="w-full rounded-full bg-muted pl-12 pr-28 h-14 text-lg"
+                        placeholder="Search on Pinterest... (e.g., 'Ben 10')"
+                        className="w-full rounded-full bg-muted pl-12 pr-48 h-14 text-lg"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        disabled={isLoading}
                     />
-                    <Button type="submit" disabled={isLoading || !searchTerm.trim()} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-11">
-                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
-                        Generate
+                    <Button type="submit" disabled={!searchTerm.trim()} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-11 px-4">
+                        <Search className="mr-2 h-4 w-4" />
+                        Search Pinterest
                     </Button>
                 </form>
             </header>
 
             <main className="flex-1">
-                 {isLoading && (
-                    <div className="flex flex-col items-center justify-center text-center py-8">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
-                        <p className="text-md text-muted-foreground">Generating new images for &quot;{searchTerm}&quot;...</p>
-                    </div>
-                 )}
-
                 {images.length > 0 ? (
                      <div 
                         className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4"
@@ -174,7 +134,7 @@ export default function LegezterestPage() {
                     </div>
                 ) : (
                     <div className="text-center py-20">
-                        <p className="text-lg text-muted-foreground">No images to display. Try generating some with the search bar above!</p>
+                        <p className="text-lg text-muted-foreground">No images to display. Try a search above to find some on Pinterest!</p>
                     </div>
                 )}
             </main>
