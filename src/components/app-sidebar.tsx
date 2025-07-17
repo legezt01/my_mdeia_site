@@ -71,17 +71,14 @@ export function AppSidebar() {
         <SidebarMenu className="px-2">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-                <Link href={item.href} passHref legacyBehavior>
+                <Link href={item.href}>
                   <SidebarMenuButton
-                    asChild
                     isActive={pathname === item.href}
                     className="w-full"
                     tooltip={item.label}
                   >
-                    <a>
-                      <item.icon className="h-5 w-5" />
-                      <span className="truncate">{item.label}</span>
-                    </a>
+                    <item.icon className="h-5 w-5" />
+                    <span className="truncate">{item.label}</span>
                   </SidebarMenuButton>
                 </Link>
             </SidebarMenuItem>
@@ -92,29 +89,24 @@ export function AppSidebar() {
         <SidebarMenu className="px-2">
             {bottomMenuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <Link href={item.href} passHref legacyBehavior>
+                  <Link href={item.href}>
                     <SidebarMenuButton
-                        asChild
                         isActive={pathname.startsWith(item.href)}
                         className="w-full"
                         tooltip={item.label}
                     >
-                      <a>
-                        <item.icon className="h-5 w-5" />
-                        <span className="truncate">{item.label}</span>
-                      </a>
+                      <item.icon className="h-5 w-5" />
+                      <span className="truncate">{item.label}</span>
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>
             ))}
             <Separator className="my-2" />
             <SidebarMenuItem>
-              <Link href="/logout" passHref legacyBehavior>
-                <SidebarMenuButton asChild className="w-full" tooltip="Logout">
-                  <a>
-                    <LogOut className="h-5 w-5" />
-                    <span className="truncate">Logout</span>
-                  </a>
+              <Link href="/logout">
+                <SidebarMenuButton className="w-full" tooltip="Logout">
+                  <LogOut className="h-5 w-5" />
+                  <span className="truncate">Logout</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
