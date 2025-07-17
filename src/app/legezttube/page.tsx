@@ -9,15 +9,16 @@ import {
   PlayCircle,
   Download,
   ListPlus,
-  ArrowRight,
   Loader2,
   X,
+  MessageSquare,
 } from 'lucide-react';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
 import React, { useState, useRef } from 'react';
 import { youtubeSearch, YoutubeSearchOutput } from '@/ai/flows/youtube-search-flow';
+import { getSubtitles } from '@/ai/flows/get-subtitles-flow';
 import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const trendingVideos = [
   {
@@ -55,6 +56,10 @@ const trendingVideos = [
 ];
 
 type VideoResult = YoutubeSearchOutput['results'][0];
+interface Subtitle {
+  start: string;
+  text: string;
+}
 
 const ShimmerLogo = () => (
     <h1 className="text-4xl font-bold font-headline relative inline-block">
@@ -68,6 +73,9 @@ export default function LegeztTubePage() {
   const [selectedVideo, setSelectedVideo] = useState<VideoResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
+  const [isFetchingSubtitles, setIsFetchingSubtitles] = useState(false);
+
   const { toast } = useToast();
   const playerRef = useRef<HTMLDivElement>(null);
 
@@ -79,6 +87,7 @@ export default function LegeztTubePage() {
     setHasSearched(true);
     setSearchResults([]);
     setSelectedVideo(null);
+    setSubtitles([]);
 
     try {
         const response = await youtubeSearch({ query: searchTerm });
@@ -97,9 +106,35 @@ export default function LegeztTubePage() {
 
   const handleWatchClick = (video: VideoResult) => {
     setSelectedVideo(video);
+    setSubtitles([]);
     setTimeout(() => {
         playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
+  }
+
+  const handleFetchSubtitles = async () => {
+    if (!selectedVideo) return;
+    setIsFetchingSubtitles(true);
+    try {
+        const response = await getSubtitles({ videoId: selectedVideo.id });
+        if (response.subtitles && response.subtitles.length > 0) {
+            setSubtitles(response.subtitles);
+        } else {
+             toast({
+                title: "No Subtitles Found",
+                description: "Subtitles are not available for this video.",
+            });
+        }
+    } catch (error) {
+         console.error("Subtitle fetch failed:", error);
+        toast({
+            variant: "destructive",
+            title: "Subtitle Error",
+            description: "Could not fetch subtitles for this video."
+        })
+    } finally {
+        setIsFetchingSubtitles(false);
+    }
   }
 
   return (
@@ -170,11 +205,30 @@ export default function LegeztTubePage() {
                             <h2 className='text-2xl font-bold'>{selectedVideo.title}</h2>
                             <p className='text-gray-400'>{selectedVideo.channel}</p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => setSelectedVideo(null)}>
-                            <X className='h-6 w-6'/>
-                        </Button>
+                        <div className="flex items-center gap-2">
+                             <Button onClick={handleFetchSubtitles} disabled={isFetchingSubtitles}>
+                                {isFetchingSubtitles ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MessageSquare className='mr-2 h-4 w-4'/>}
+                                Subtitles
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => { setSelectedVideo(null); setSubtitles([]); }}>
+                                <X className='h-6 w-6'/>
+                            </Button>
+                        </div>
                     </div>
                  </div>
+
+                 {subtitles.length > 0 && (
+                    <div className="max-w-4xl mx-auto mt-4">
+                        <ScrollArea className="h-64 p-4 bg-gray-900 rounded-lg">
+                            {subtitles.map((sub, index) => (
+                                <div key={index} className="flex gap-4 mb-2 text-gray-300">
+                                    <span className="font-mono text-neon-blue w-20">{sub.start}</span>
+                                    <p>{sub.text}</p>
+                                </div>
+                            ))}
+                        </ScrollArea>
+                    </div>
+                 )}
             </section>
         )}
 
@@ -269,3 +323,5 @@ export default function LegeztTubePage() {
     </div>
   );
 }
+
+    
