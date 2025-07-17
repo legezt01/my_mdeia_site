@@ -67,16 +67,16 @@ export function AppSidebar() {
         <SidebarMenu className="px-2">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-                <Link href={item.href} asChild>
-                  <SidebarMenuButton
-                    isActive={pathname === item.href}
-                    className="w-full"
-                    tooltip={item.label}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span className="truncate">{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
+                <SidebarMenuButton
+                  as={Link}
+                  href={item.href}
+                  isActive={pathname === item.href}
+                  className="w-full"
+                  tooltip={item.label}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span className="truncate">{item.label}</span>
+                </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -85,26 +85,24 @@ export function AppSidebar() {
         <SidebarMenu className="px-2">
             {bottomMenuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                    <Link href={item.href} asChild>
-                        <SidebarMenuButton
-                            isActive={pathname.startsWith(item.href)}
-                            className="w-full"
-                            tooltip={item.label}
-                        >
-                            <item.icon className="h-5 w-5" />
-                            <span className="truncate">{item.label}</span>
-                        </SidebarMenuButton>
-                    </Link>
+                    <SidebarMenuButton
+                        as={Link}
+                        href={item.href}
+                        isActive={pathname.startsWith(item.href)}
+                        className="w-full"
+                        tooltip={item.label}
+                    >
+                        <item.icon className="h-5 w-5" />
+                        <span className="truncate">{item.label}</span>
+                    </SidebarMenuButton>
                 </SidebarMenuItem>
             ))}
             <Separator className="my-2" />
             <SidebarMenuItem>
-                <Link href="/logout" asChild>
-                    <SidebarMenuButton className="w-full" tooltip="Logout">
-                        <LogOut className="h-5 w-5" />
-                        <span className="truncate">Logout</span>
-                    </SidebarMenuButton>
-                </Link>
+                <SidebarMenuButton as={Link} href="/logout" className="w-full" tooltip="Logout">
+                    <LogOut className="h-5 w-5" />
+                    <span className="truncate">Logout</span>
+                </SidebarMenuButton>
             </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
