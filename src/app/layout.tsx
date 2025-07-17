@@ -9,6 +9,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { Header } from '@/components/header';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { useEffect, useState } from 'react';
+import { AuthProvider } from '@/components/auth-provider';
 
 // This is a client component, so we can't use the metadata export.
 // We'll set the title dynamically if needed.
@@ -54,15 +55,17 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
       </head>
       <body className={cn("min-h-screen bg-background font-body antialiased")}>
-        <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-                <Header />
-                <main className="flex-1 overflow-y-auto">
-                    {children}
-                </main>
-            </SidebarInset>
-        </SidebarProvider>
+        <AuthProvider>
+          <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                  <Header />
+                  <main className="flex-1 overflow-y-auto">
+                      {children}
+                  </main>
+              </SidebarInset>
+          </SidebarProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
