@@ -34,15 +34,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
+      // onAuthStateChanged will set loading to false on success
     } catch (error: any) {
+      // Gracefully handle popup closed by user
+      if (error.code === 'auth/popup-closed-by-user') {
+        console.log('Sign-in popup closed by user.');
+        setLoading(false);
+        return;
+      }
+      
       console.error("Sign-in error:", error);
       toast({
         variant: 'destructive',
         title: 'Sign In Failed',
         description: error.message || 'An unknown error occurred.',
       });
-    } finally {
-        // onAuthStateChanged will handle setting loading to false
+      setLoading(false);
     }
   };
 
