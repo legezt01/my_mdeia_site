@@ -11,16 +11,17 @@ import {
   ListPlus,
   ArrowRight,
   Loader2,
+  X,
 } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { youtubeSearch, YoutubeSearchOutput } from '@/ai/flows/youtube-search-flow';
 import { useToast } from '@/hooks/use-toast';
 
 const trendingVideos = [
   {
-    id: '1',
+    id: 'OGudBiM-XUA',
     thumbnail: 'https://placehold.co/300x180.png',
     dataAiHint: 'synthwave sunset',
     title: 'Synthwave Dreams - A Retro Journey',
@@ -28,7 +29,7 @@ const trendingVideos = [
     duration: '1:23:45',
   },
   {
-    id: '2',
+    id: '5qap5aO4i9A',
     thumbnail: 'https://placehold.co/300x180.png',
     dataAiHint: 'lofi beats',
     title: 'Lofi Beats to Relax/Study to',
@@ -36,7 +37,7 @@ const trendingVideos = [
     duration: '2:45:10',
   },
   {
-    id: '3',
+    id: '4xDzrJKXOOY',
     thumbnail: 'https://placehold.co/300x180.png',
     dataAiHint: 'cyberpunk city',
     title: 'Cyberpunk City Ambience',
@@ -44,7 +45,7 @@ const trendingVideos = [
     duration: '3:10:05',
   },
    {
-    id: '4',
+    id: 'Dy266g_g_nA',
     thumbnail: 'https://placehold.co/300x180.png',
     dataAiHint: 'gaming highlights',
     title: 'Pro Gamer Moments of 2024',
@@ -64,10 +65,12 @@ const ShimmerLogo = () => (
 export default function LegeztTubePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<VideoResult[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<VideoResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const { toast } = useToast();
-  
+  const playerRef = useRef<HTMLDivElement>(null);
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchTerm.trim()) return;
@@ -75,6 +78,7 @@ export default function LegeztTubePage() {
     setIsLoading(true);
     setHasSearched(true);
     setSearchResults([]);
+    setSelectedVideo(null);
 
     try {
         const response = await youtubeSearch({ query: searchTerm });
@@ -89,6 +93,13 @@ export default function LegeztTubePage() {
     } finally {
         setIsLoading(false);
     }
+  }
+
+  const handleWatchClick = (video: VideoResult) => {
+    setSelectedVideo(video);
+    setTimeout(() => {
+        playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   }
 
   return (
@@ -139,6 +150,34 @@ export default function LegeztTubePage() {
           </Button>
         </form>
         
+        {/* Player Section */}
+        {selectedVideo && (
+            <section ref={playerRef} className='mb-8 fade-in'>
+                 <div className="relative aspect-video max-w-4xl mx-auto rounded-xl overflow-hidden shadow-[0_0_25px_rgba(166,77,255,0.3)]">
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1`}
+                        title={selectedVideo.title} 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                        className='border-0'
+                    ></iframe>
+                 </div>
+                 <div className="max-w-4xl mx-auto mt-4 p-4 bg-gray-800/50 rounded-lg">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <h2 className='text-2xl font-bold'>{selectedVideo.title}</h2>
+                            <p className='text-gray-400'>{selectedVideo.channel}</p>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={() => setSelectedVideo(null)}>
+                            <X className='h-6 w-6'/>
+                        </Button>
+                    </div>
+                 </div>
+            </section>
+        )}
+
         {/* Results / Trending Section */}
         {hasSearched ? (
             <section>
@@ -151,7 +190,7 @@ export default function LegeztTubePage() {
                     <div className="space-y-4">
                         {searchResults.map((result, index) => (
                         <div key={result.id} className="flex gap-4 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors fade-in" style={{animationDelay: `${index * 100}ms`}}>
-                            <div className="relative flex-shrink-0">
+                            <div className="relative flex-shrink-0 cursor-pointer" onClick={() => handleWatchClick(result)}>
                             <Image
                                 src={result.thumbnail}
                                 alt={result.title}
@@ -168,7 +207,7 @@ export default function LegeztTubePage() {
                                 {result.channel} • {result.duration}
                             </p>
                             <div className="flex items-center gap-2 mt-3">
-                                <Button className="bg-neon-blue/20 text-neon-blue border border-neon-blue/50 hover:bg-neon-blue/30 shadow-[0_0_10px_rgba(125,249,255,0.3)] hover:shadow-[0_0_15px_rgba(125,249,255,0.5)] transition-all">
+                                <Button onClick={() => handleWatchClick(result)} className="bg-neon-blue/20 text-neon-blue border border-neon-blue/50 hover:bg-neon-blue/30 shadow-[0_0_10px_rgba(125,249,255,0.3)] hover:shadow-[0_0_15px_rgba(125,249,255,0.5)] transition-all">
                                 <PlayCircle className="w-4 h-4 mr-2" /> Watch
                                 </Button>
                                 <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-700">
@@ -195,7 +234,7 @@ export default function LegeztTubePage() {
                 </h2>
                 <div className="flex space-x-4 overflow-x-auto pb-4 -mx-4 px-4">
                     {trendingVideos.map((video, index) => (
-                    <div key={video.id} className="fade-in flex-shrink-0 w-64 group" style={{animationDelay: `${index * 100}ms`}}>
+                    <div key={video.id} className="fade-in flex-shrink-0 w-64 group cursor-pointer" onClick={() => handleWatchClick(video)} style={{animationDelay: `${index * 100}ms`}}>
                         <div className="relative rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-105">
                         <Image
                             src={video.thumbnail}

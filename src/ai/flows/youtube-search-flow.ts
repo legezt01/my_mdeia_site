@@ -17,7 +17,7 @@ const YoutubeSearchInputSchema = z.object({
 export type YoutubeSearchInput = z.infer<typeof YoutubeSearchInputSchema>;
 
 const VideoResultSchema = z.object({
-  id: z.string().describe('A unique identifier for the video.'),
+  id: z.string().describe('A plausible YouTube video ID (e.g., dQw4w9WgXcQ).'),
   thumbnail: z.string().describe('The URL for the video thumbnail image.'),
   dataAiHint: z.string().describe('A hint for AI to find a relevant placeholder image.'),
   title: z.string().describe('The title of the video.'),
@@ -43,7 +43,7 @@ const prompt = ai.definePrompt({
   Generate a list of 5 plausible and creative YouTube video search results based on this query.
   
   For each result, provide:
-  - id: a unique string
+  - id: a plausible and unique 11-character YouTube video ID (e.g., dQw4w9WgXcQ, OGudBiM-XUA)
   - thumbnail: always use 'https://placehold.co/160x90.png'
   - dataAiHint: a 1-2 word hint for a placeholder image (e.g., "game tutorial", "music video")
   - title: a creative and relevant video title
