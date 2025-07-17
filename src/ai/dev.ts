@@ -1,5 +1,8 @@
 import { config } from 'dotenv';
-config();
+import path from 'path';
+
+// Explicitly point to the .env file in the project root
+config({ path: path.resolve(process.cwd(), '.env') });
 
 import '@/ai/flows/pdf-ai.ts';
 import '@/ai/flows/suggested-prompts.ts';
