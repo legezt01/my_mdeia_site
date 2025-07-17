@@ -11,9 +11,13 @@ const firebaseConfig: FirebaseOptions = {
 };
 
 // Validate that all required environment variables are present
-const requiredConfigValues = Object.values(firebaseConfig);
-if (requiredConfigValues.some(value => !value)) {
-    console.error("Firebase config is missing. Make sure all NEXT_PUBLIC_FIREBASE_* variables are set in your .env file.");
+const requiredConfigValues = Object.entries(firebaseConfig);
+const missingKeys = requiredConfigValues
+    .filter(([key, value]) => !value)
+    .map(([key]) => key);
+
+if (missingKeys.length > 0) {
+    console.error(`Firebase config is missing or incomplete. Make sure the following environment variables are set in your .env file: ${missingKeys.join(', ')}`);
 }
 
 
