@@ -67,7 +67,7 @@ export function AppSidebar() {
         <SidebarMenu className="px-2">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-                <Link href={item.href}>
+                <Link href={item.href} asChild>
                   <SidebarMenuButton
                     isActive={pathname === item.href}
                     className="w-full"
@@ -85,7 +85,7 @@ export function AppSidebar() {
         <SidebarMenu className="px-2">
             {bottomMenuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                    <Link href={item.href}>
+                    <Link href={item.href} asChild>
                         <SidebarMenuButton
                             isActive={pathname.startsWith(item.href)}
                             className="w-full"
@@ -99,7 +99,7 @@ export function AppSidebar() {
             ))}
             <Separator className="my-2" />
             <SidebarMenuItem>
-                <Link href="/logout">
+                <Link href="/logout" asChild>
                     <SidebarMenuButton className="w-full" tooltip="Logout">
                         <LogOut className="h-5 w-5" />
                         <span className="truncate">Logout</span>
