@@ -38,42 +38,13 @@ const FoodSVG = () => (
 
 const SnakeHeadSVG = () => (
     <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-        <path d="M 50 10 C 20 10, 10 40, 10 60 L 10 90 C 10 95, 15 100, 20 100 L 80 100 C 85 100, 90 95, 90 90 L 90 60 C 90 40, 80 10, 50 10 Z" fill="#FACC15" stroke="#000" strokeWidth="3" />
-        <circle cx="35" cy="45" r="5" fill="black" />
-        <circle cx="65" cy="45" r="5" fill="black" />
-        <circle cx="50" cy="75" r="10" fill="#16A34A" stroke="#000" strokeWidth="2" />
-        <path d="M 20 25 A 10 10 0 0 1 30 25" fill="#16A34A" stroke="#000" strokeWidth="2" />
-        <path d="M 70 25 A 10 10 0 0 1 80 25" fill="#16A34A" stroke="#000" strokeWidth="2" />
+        <circle cx="50" cy="50" r="45" fill="#FACC15" stroke="#000" strokeWidth="4" />
+        <circle cx="35" cy="40" r="8" fill="black" />
+        <circle cx="65" cy="40" r="8" fill="black" />
+        <path d="M 30 70 Q 50 85 70 70" stroke="black" strokeWidth="4" fill="none" />
     </svg>
 );
 
-const SnakeBodySVG = () => (
-    <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-        <rect x="10" y="0" width="80" height="100" fill="#FACC15" />
-        <line x1="10" y1="0" x2="10" y2="100" stroke="black" strokeWidth="3" />
-        <line x1="90" y1="0" x2="90" y2="100" stroke="black" strokeWidth="3" />
-        <circle cx="50" cy="25" r="12" fill="#16A34A" stroke="#000" strokeWidth="2" />
-        <circle cx="25" cy="75" r="8" fill="#16A34A" stroke="#000" strokeWidth="2" />
-        <circle cx="75" cy="75" r="8" fill="#16A34A" stroke="#000" strokeWidth="2" />
-    </svg>
-);
-
-const SnakeTailSVG = () => (
-    <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-        <path d="M 10 0 L 90 0 L 90 50 C 90 80, 70 90, 50 100 C 30 90, 10 80, 10 50 L 10 0 Z" fill="#FACC15" />
-        <line x1="10" y1="0" x2="10" y2="50" stroke="black" strokeWidth="3" />
-        <line x1="90" y1="0" x2="90" y2="50" stroke="black" strokeWidth="3" />
-        <path d="M 10 50 C 10 80, 30 90, 50 100 C 70 90, 90 80, 90 50" stroke="black" strokeWidth="3" fill="none"/>
-        <circle cx="50" cy="25" r="10" fill="#16A34A" stroke="#000" strokeWidth="2" />
-    </svg>
-);
-
-const SnakeCornerSVG = () => (
-     <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-        <path d="M10 100 L10 10 C10 5, 15 0, 20 0 L100 0 L100 10 L25 10 C20 10, 15 15, 15 20 L15 100 Z" fill="#FACC15" stroke="#000" strokeWidth="3" />
-        <circle cx="50" cy="50" r="15" fill="#16A34A" stroke="#000" strokeWidth="2" />
-    </svg>
-)
 
 function SnakeGame() {
   const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
@@ -172,52 +143,24 @@ function SnakeGame() {
   }, [snake, direction, speed, food, isGameOver]);
 
   const getRotation = (dir: {x: number, y: number}) => {
-    if (dir.y === -1) return 0;
-    if (dir.x === 1) return 90;
-    if (dir.y === 1) return 180;
-    if (dir.x === -1) return 270;
+    if (dir.y === -1) return 0; // Up
+    if (dir.x === 1) return 90; // Right
+    if (dir.y === 1) return 180; // Down
+    if (dir.x === -1) return 270; // Left
     return 0;
   }
   
-  const getSegmentRotation = (prev: {x: number, y: number}, current: {x: number, y: number}) => {
-      const dx = current.x - prev.x;
-      const dy = current.y - prev.y;
-      return getRotation({x: dx, y: dy});
-  }
-
-  const isCorner = (index: number) => {
-    if (index === 0 || index === snake.length - 1) return false;
-    const prev = snake[index + 1];
-    const current = snake[index];
-    const next = snake[index - 1];
-    return prev.x !== next.x && prev.y !== next.y;
-  }
-  
-  const getCornerRotation = (index: number) => {
-    const prev = snake[index + 1];
-    const current = snake[index];
-    const next = snake[index - 1];
-    const dir1 = { x: current.x - prev.x, y: current.y - prev.y };
-    const dir2 = { x: next.x - current.x, y: next.y - current.y };
-
-    if ((dir1.x === 1 && dir2.y === -1) || (dir1.y === 1 && dir2.x === -1)) return 0;
-    if ((dir1.y === -1 && dir2.x === -1) || (dir1.x === 1 && dir2.y === 1)) return 270;
-    if ((dir1.x === -1 && dir2.y === -1) || (dir1.y === 1 && dir2.x === 1)) return 180;
-    if ((dir1.y === -1 && dir2.x === 1) || (dir1.x === -1 && dir2.y === 1)) return 90;
-    return 0;
-  };
-
   return (
     <div className="flex flex-col items-center justify-center text-center p-4">
       <Card 
-        className="shadow-2xl border-2 border-primary/20 p-2 relative bg-muted/30"
+        className="shadow-2xl border-2 border-primary/20 p-2 relative bg-muted/30 rounded-2xl"
         style={{ width: GRID_SIZE * CELL_SIZE, height: GRID_SIZE * CELL_SIZE }}
       >
         <div 
             ref={gameBoardRef}
             tabIndex={0}
             onKeyDown={handleKeyDown}
-            className="w-full h-full relative grid outline-none"
+            className="w-full h-full relative grid outline-none bg-green-900/10 rounded-lg"
             style={{ 
                 gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
                 gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
@@ -233,48 +176,33 @@ function SnakeGame() {
               </Button>
             </div>
           )}
-          {snake.map((segment, index) => {
-            const rotation = index === 0 
-                ? getRotation(direction) 
-                : getSegmentRotation(snake[index - 1], segment);
-
-            const tailRotation = index === snake.length - 1 && snake.length > 1
-                ? getSegmentRotation(segment, snake[index - 1])
-                : 0;
-
-            const isCornerSegment = isCorner(index);
-            const cornerRotation = isCornerSegment ? getCornerRotation(index) : 0;
-            
-            return (
-                <div
-                key={index}
-                className="absolute"
-                style={{
-                    left: segment.x * CELL_SIZE,
-                    top: segment.y * CELL_SIZE,
-                    width: CELL_SIZE,
-                    height: CELL_SIZE,
-                }}
-                >
-                <div
-                    className="w-full h-full"
+          {snake.map((segment, index) => (
+            <div
+              key={index}
+              className="absolute transition-all duration-150 ease-linear"
+              style={{
+                  left: segment.x * CELL_SIZE,
+                  top: segment.y * CELL_SIZE,
+                  width: CELL_SIZE,
+                  height: CELL_SIZE,
+                  transform: index === 0 ? `rotate(${getRotation(direction)}deg)` : 'none',
+                  zIndex: snake.length - index,
+              }}
+            >
+              {index === 0 ? (
+                  <SnakeHeadSVG />
+              ) : (
+                <div 
+                    className="w-full h-full bg-[#FACC15] border-2 border-black/50"
                     style={{
-                        transform: `rotate(${
-                            index === 0 ? rotation :
-                            index === snake.length - 1 ? tailRotation :
-                            isCornerSegment ? cornerRotation : rotation
-                        }deg)`
+                        borderRadius: '30%',
                     }}
-                >
-                    {index === 0 && <SnakeHeadSVG />}
-                    {index > 0 && index < snake.length - 1 && (isCornerSegment ? <SnakeCornerSVG /> : <SnakeBodySVG />)}
-                    {index === snake.length - 1 && snake.length > 1 && <SnakeTailSVG />}
-                </div>
-                </div>
-            )
-          })}
+                />
+              )}
+            </div>
+          ))}
           <div
-            className="absolute"
+            className="absolute transition-all duration-150 ease-in-out"
             style={{
               left: food.x * CELL_SIZE,
               top: food.y * CELL_SIZE,
