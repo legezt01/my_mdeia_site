@@ -15,6 +15,7 @@ import {
   User,
   Youtube,
   Newspaper,
+  Calculator,
 } from 'lucide-react';
 
 import {
@@ -35,6 +36,7 @@ const menuItems = [
   { href: '/legezterest', label: 'Legezterest', icon: ImageIcon },
   { href: '/ai-chat', label: 'AI Chat', icon: Bot },
   { href: '/pdf-ai', label: 'PDF AI', icon: FileText },
+  { href: '/calculator', label: 'Calculator', icon: Calculator },
   { href: '/profile', label: 'Dashboard', icon: User },
   { href: '/saved', label: 'Saved Content', icon: Bookmark },
   { href: '/games', label: 'LegeztPlay', icon: Gamepad2 },
@@ -67,16 +69,16 @@ export function AppSidebar() {
         <SidebarMenu className="px-2">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-                <SidebarMenuButton
-                  as={Link}
-                  href={item.href}
-                  isActive={pathname === item.href}
-                  className="w-full"
-                  tooltip={item.label}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span className="truncate">{item.label}</span>
-                </SidebarMenuButton>
+                <Link href={item.href} asChild>
+                  <SidebarMenuButton
+                    isActive={pathname === item.href}
+                    className="w-full"
+                    tooltip={item.label}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span className="truncate">{item.label}</span>
+                  </SidebarMenuButton>
+                </Link>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -85,9 +87,8 @@ export function AppSidebar() {
         <SidebarMenu className="px-2">
             {bottomMenuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
+                  <Link href={item.href} asChild>
                     <SidebarMenuButton
-                        as={Link}
-                        href={item.href}
                         isActive={pathname.startsWith(item.href)}
                         className="w-full"
                         tooltip={item.label}
@@ -95,14 +96,17 @@ export function AppSidebar() {
                         <item.icon className="h-5 w-5" />
                         <span className="truncate">{item.label}</span>
                     </SidebarMenuButton>
+                  </Link>
                 </SidebarMenuItem>
             ))}
             <Separator className="my-2" />
             <SidebarMenuItem>
-                <SidebarMenuButton as={Link} href="/logout" className="w-full" tooltip="Logout">
+              <Link href="/logout" asChild>
+                <SidebarMenuButton className="w-full" tooltip="Logout">
                     <LogOut className="h-5 w-5" />
                     <span className="truncate">Logout</span>
                 </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
