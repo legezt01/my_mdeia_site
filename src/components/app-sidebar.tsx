@@ -16,6 +16,7 @@ import {
   Youtube,
   Newspaper,
   Calculator,
+  Camera,
 } from 'lucide-react';
 
 import {
@@ -37,6 +38,7 @@ const menuItems = [
   { href: '/ai-chat', label: 'AI Chat', icon: Bot },
   { href: '/pdf-ai', label: 'PDF AI', icon: FileText },
   { href: '/calculator', label: 'Calculator', icon: Calculator },
+  { href: '/camera-tracer', label: 'Camera Tracer', icon: Camera },
   { href: '/profile', label: 'Dashboard', icon: User },
   { href: '/saved', label: 'Saved Content', icon: Bookmark },
   { href: '/games', label: 'LegeztPlay', icon: Gamepad2 },
@@ -69,14 +71,17 @@ export function AppSidebar() {
         <SidebarMenu className="px-2">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-                <Link href={item.href} asChild>
+                <Link href={item.href} passHref legacyBehavior>
                   <SidebarMenuButton
+                    asChild
                     isActive={pathname === item.href}
                     className="w-full"
                     tooltip={item.label}
                   >
-                    <item.icon className="h-5 w-5" />
-                    <span className="truncate">{item.label}</span>
+                    <a>
+                      <item.icon className="h-5 w-5" />
+                      <span className="truncate">{item.label}</span>
+                    </a>
                   </SidebarMenuButton>
                 </Link>
             </SidebarMenuItem>
@@ -87,24 +92,29 @@ export function AppSidebar() {
         <SidebarMenu className="px-2">
             {bottomMenuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <Link href={item.href} asChild>
+                  <Link href={item.href} passHref legacyBehavior>
                     <SidebarMenuButton
+                        asChild
                         isActive={pathname.startsWith(item.href)}
                         className="w-full"
                         tooltip={item.label}
                     >
+                      <a>
                         <item.icon className="h-5 w-5" />
                         <span className="truncate">{item.label}</span>
+                      </a>
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>
             ))}
             <Separator className="my-2" />
             <SidebarMenuItem>
-              <Link href="/logout" asChild>
-                <SidebarMenuButton className="w-full" tooltip="Logout">
+              <Link href="/logout" passHref legacyBehavior>
+                <SidebarMenuButton asChild className="w-full" tooltip="Logout">
+                  <a>
                     <LogOut className="h-5 w-5" />
                     <span className="truncate">Logout</span>
+                  </a>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
