@@ -1,1 +1,6 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/pdf-ai.ts';
+import '@/ai/flows/suggested-prompts.ts';
+import '@/ai/flows/ai-chat.ts';
