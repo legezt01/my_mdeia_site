@@ -162,7 +162,14 @@ export default function LegezterestPage() {
                 </div>
             ) : (
                 <div className="text-center py-20">
-                    <p className="text-lg text-muted-foreground">No images to display. Try a search above to generate some!</p>
+                    {isLoading ? (
+                        <div className="flex justify-center items-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <p className="ml-4 text-lg text-muted-foreground">Generating images...</p>
+                        </div>
+                    ) : (
+                        <p className="text-lg text-muted-foreground">No images to display. Try a search above to generate some!</p>
+                    )}
                 </div>
             )}
             </main>
