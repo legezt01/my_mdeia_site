@@ -18,7 +18,7 @@ export type YoutubeSearchInput = z.infer<typeof YoutubeSearchInputSchema>;
 
 const VideoResultSchema = z.object({
   id: z.string().describe('A unique identifier for the video.'),
-  thumbnail: z.string().url().describe('The URL for the video thumbnail image.'),
+  thumbnail: z.string().describe('The URL for the video thumbnail image.'),
   dataAiHint: z.string().describe('A hint for AI to find a relevant placeholder image.'),
   title: z.string().describe('The title of the video.'),
   channel: z.string().describe('The name of the YouTube channel.'),
