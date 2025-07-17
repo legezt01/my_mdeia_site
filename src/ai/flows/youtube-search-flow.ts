@@ -60,9 +60,9 @@ function formatDuration(isoString: string) {
 
 
 export async function youtubeSearch(input: YoutubeSearchInput): Promise<YoutubeSearchOutput> {
-  const apiKey = process.env.YOUTUBE_API_KEY;
+  const apiKey = process.env.YOUTUBE_DATA_API;
   if (!apiKey) {
-    throw new Error('YouTube API key is not configured.');
+    throw new Error('YouTube API key (YOUTUBE_DATA_API) is not configured.');
   }
 
   const searchUrl = new URL('https://www.googleapis.com/youtube/v3/search');
