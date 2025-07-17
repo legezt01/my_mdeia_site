@@ -9,7 +9,7 @@ import {
   User,
   Auth
 } from 'firebase/auth';
-import { auth as firebaseAuth } from '@/lib/firebase'; // Renamed to avoid conflict
+import { auth as firebaseAuth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
@@ -25,37 +25,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  
-  // Hold the auth instance in state to ensure it's client-side only
-  const [auth, setAuth] = useState<Auth | null>(null);
 
   useEffect(() => {
-    setAuth(firebaseAuth); // Set the auth instance on the client
-  }, []);
-
-  useEffect(() => {
-    if (!auth) {
-      // Auth is not ready yet, still loading
-      setLoading(true);
-      return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
       setUser(user);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
   const signIn = async () => {
-    if (!auth) return; // Don't try to sign in if auth is not ready
-    
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      // onAuthStateChanged will handle setting the user and loading state
+      await signInWithPopup(firebaseAuth, provider);
+      // onAuthStateChanged will handle setting the user and updating loading state.
     } catch (error: any) {
       if (error.code === 'auth/popup-closed-by-user') {
         console.log('Sign-in popup closed by user.');
@@ -80,10 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    if (!auth) return; // Don't try to sign out if auth is not ready
-    
     try {
-      await auth.signOut();
+      await firebaseAuth.signOut();
       setUser(null);
     } catch (error: any) {
       console.error("Sign-out error:", error);
