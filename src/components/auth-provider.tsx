@@ -2,7 +2,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, User } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, User, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
@@ -26,29 +26,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
+    // Handle redirect result on initial load
+    getRedirectResult(auth)
+        .catch(error => {
+            if (error.code !== 'auth/web-storage-unsupported') {
+                 console.error("Sign-in redirect error:", error);
+                toast({
+                    variant: 'destructive',
+                    title: 'Sign In Failed',
+                    description: error.message || 'An unknown error occurred during redirect.',
+                });
+            }
+        }).finally(() => {
+            setLoading(false);
+        })
+
+
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
   const signIn = async () => {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
+      // Using popup as it's a better experience than redirect for many cases.
       await signInWithPopup(auth, provider);
-      // onAuthStateChanged will set loading to false on success
+      // `onAuthStateChanged` will handle setting the user and setting loading to false.
     } catch (error: any) {
-      // Gracefully handle popup closed by user
       if (error.code === 'auth/popup-closed-by-user') {
         console.log('Sign-in popup closed by user.');
-        setLoading(false);
-        return;
+      } else {
+        console.error("Sign-in error:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Sign In Failed',
+          description: error.message || 'An unknown error occurred.',
+        });
       }
-      
-      console.error("Sign-in error:", error);
-      toast({
-        variant: 'destructive',
-        title: 'Sign In Failed',
-        description: error.message || 'An unknown error occurred.',
-      });
+      // Ensure loading is always turned off after the attempt.
       setLoading(false);
     }
   };
