@@ -117,6 +117,14 @@ export default function GamesPage() {
     return () => clearInterval(gameInterval);
   }, [snake, direction, speed, food, isGameOver]);
 
+  const getEyeStyle = (dir: {x: number, y: number}) => {
+    if (dir.y === -1) return 'flex-col items-center top-[20%]'; // Up
+    if (dir.y === 1) return 'flex-col items-center bottom-[20%]'; // Down
+    if (dir.x === -1) return 'flex-row items-center left-[20%]'; // Left
+    if (dir.x === 1) return 'flex-row items-center right-[20%]'; // Right
+    return '';
+  }
+
   return (
     <div className="flex flex-col h-full items-center justify-center bg-background p-4 text-center">
       <div className="flex items-center mb-4">
@@ -154,12 +162,26 @@ export default function GamesPage() {
           {snake.map((segment, index) => (
             <div
               key={index}
-              className={cn("rounded-sm transition-colors duration-1000", index === 0 ? "bg-primary" : "bg-primary/70")}
+              className="relative"
               style={{
                 gridColumnStart: segment.x + 1,
                 gridRowStart: segment.y + 1,
               }}
-            />
+            >
+              <div
+                className={cn(
+                  "absolute inset-0 rounded-md",
+                  index === 0 ? "bg-primary" : "bg-primary/70 scale-90 rounded-lg"
+                )}
+              >
+                {index === 0 && (
+                  <div className={cn("absolute inset-0 flex justify-around", getEyeStyle(direction))}>
+                    <div className="w-1/4 h-1/4 bg-white rounded-full border border-primary/50"></div>
+                    <div className="w-1/4 h-1/4 bg-white rounded-full border border-primary/50"></div>
+                  </div>
+                )}
+              </div>
+            </div>
           ))}
 
           {/* Render Food */}
